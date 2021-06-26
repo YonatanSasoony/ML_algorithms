@@ -18,145 +18,8 @@ def run(initializer, x_train, y_train, x_test, y_test, arg=None, cross_validatio
     else:
         classifier = initializer(x_train, y_train)
     err = calculate_err(classifier, x_test, y_test)
-    print(err)
+    # print(err)
     return err
-
-
-def calculate_err(classifier, X_test, Y_test):
-    err_count = 0
-    # sum = 0
-    m = Y_test.shape[0]
-    for i in range(m):
-        x = X_test[i, :]
-        y = classifier.classify(x)
-        # sum += y
-        if y != Y_test[i]:
-            err_count += 1
-
-    # print(sum)
-    return err_count / m
-
-
-def main():
-    # mnist.init()
-    x_train, y_train, x_test, y_test = MNISTLoader.load_all()
-    x_train = x_train / 255
-    x_test = x_test / 255
-
-    perm = np.random.permutation(x_train.shape[0])[0:2000]
-    x_train = x_train[perm]
-    y_train = y_train[perm]
-
-    perm = np.random.permutation(x_test.shape[0])[0:500]
-    x_test = x_test[perm]
-    y_test = y_test[perm]
-
-    x_good_train, y_good_train, x_good_test, y_good_test = MNISTLoader.load_part([0, 1])
-    x_good_train = x_good_train / 255
-    x_good_test = x_good_test / 255
-    perm = np.random.permutation(x_good_train.shape[0])[0:2000]
-    x_good_train = x_good_train[perm]
-    y_good_train = x_good_train[perm]
-
-    perm = np.random.permutation(x_good_test.shape[0])[0:500]
-    x_good_test = x_good_train[perm]
-    y_good_test = x_good_train[perm]
-
-    x_bad_train, y_bad_train, x_bad_test, y_bad_test = MNISTLoader.load_part([3, 5])
-    x_bad_train = x_bad_train / 255
-    x_bad_test = x_bad_test / 255
-
-    y_bad_train = (y_bad_train - 3) / 2  # 0/1
-    y_bad_test = (y_bad_test - 3) / 2  # 0/1
-
-    perm = np.random.permutation(x_bad_train.shape[0])[0:2000]
-    x_bad_train = x_bad_train[perm]
-    y_bad_train = y_bad_train[perm]
-
-    perm = np.random.permutation(x_bad_test.shape[0])[0:500]
-    x_bad_test = x_bad_test[perm]
-    y_bad_test = y_bad_test[perm]
-
-    # run(initializer, x_train, y_train, x_test, y_test, arg=None, cross_validation=None):
-
-    ## Naive Bayes
-    ## need to transform x to {0,1}^d
-    ## easy pair- 0 1
-    run(NaiveBayes, np.ceil(x_good_train), y_good_train, np.ceil(x_good_test), y_good_test)
-
-    ## hard pair - 3 5
-    run(NaiveBayes, np.ceil(x_bad_train), y_bad_train, np.ceil(x_bad_test), y_bad_test)
-
-    ## easy pair- 0 1
-    # x_good_ceil_train = np.ceil(x_good_train)
-    # perm = np.random.permutation(x_good_ceil_train.shape[0])[0:2000]
-    # X = x_good_ceil_train[perm]
-    # Y = y_good_train[perm]
-    # bayes = NaiveBayes(X, Y)
-    # x_good_ceil_test = np.ceil(x_good_test)
-    # perm = np.random.permutation(x_good_ceil_test.shape[0])[0:500]
-    # err = calculate_err(bayes, x_good_ceil_test[perm, :], y_good_test[perm])
-    # print(err)
-
-    ## hard pair - 3 5
-    # x_bad_ceil_train = np.ceil(x_bad_train)
-    # perm = np.random.permutation(x_bad_ceil_train.shape[0])[0:2000]
-    # X = x_bad_ceil_train[perm]
-    # Y = y_bad_train[perm]
-    # bayes = NaiveBayes(X, Y)
-    # x_bad_ceil_test = np.ceil(x_bad_test)
-    #
-    # perm = np.random.permutation(x_bad_ceil_test.shape[0])[0:500]
-    # err = calculate_err(bayes, x_bad_ceil_test[perm, :], y_bad_test[perm])
-    # print(err)
-
-    ## SVM
-    ## need to transform y to {-1,1}
-    ## easy pair- 0 1
-    run(NaiveBayes, x_good_train, np.sign(y_good_train - 0.5), x_good_test, np.sign(y_good_test - 0.5))
-
-    ## hard pair - 3 5
-    run(NaiveBayes, x_bad_train, np.sign(y_bad_train - 0.5), x_bad_test, np.sign(y_bad_test - 0.5))
-
-    ## easy pair- 0 1
-    # perm = np.random.permutation(x_good_train.shape[0])[0:2000]
-    # X = x_good_train[perm]
-    # Y = y_good_train[perm]
-    # Y = np.sign(Y - 0.5)
-    # # best_svm = cross_validation(5, X, Y, [1, 10, 100], SVM)
-    # svm = SVM(1, X, Y)
-    #
-    # perm = np.random.permutation(x_good_test.shape[0])[0:500]
-    # err = calculate_err(svm, x_good_test[perm, :], np.sign(y_good_test[perm]-0.5))
-    # print(err)
-
-    ## hard pair - 3 5
-    # perm = np.random.permutation(x_bad_train.shape[0])[0:2000]
-    # X = x_bad_train[perm]
-    # Y = y_bad_train[perm]
-    #
-    # Y = np.sign(Y - 0.5)
-    # # best_svm = cross_validation(5, X, Y, [1, 10, 100], SVM)
-    # svm = SVM(1, X, Y)
-    # perm = np.random.permutation(x_bad_test.shape[0])[0:500]
-    # err = calculate_err(svm, x_bad_test[perm, :], np.sign(y_bad_test[perm]-0.5))
-    # print(err)
-
-    ## KNN
-    run(NaiveBayes, x_train, y_train, x_test, y_test)
-    # perm = np.random.permutation(x_train.shape[0])[0:2000]
-    # X = x_train[perm]
-    # Y = y_train[perm]
-    # best_knn = cross_validation(5, X, Y, list(range(1, 11)), KNN)  # run KNN with 5 fold cross validation
-    # perm = np.random.permutation(x_test.shape[0])[0:500]
-    # err = calculate_err(best_knn, x_test[perm, :], y_test[perm])
-    # print("final err:")
-    # print(err)
-
-    ## Kmeans
-    kmeans = Kmeans(10, x_train, y_train)
-    kmeans.cluster()
-    kmeans.showClusters()
 
 
 def cross_validation(p, X, Y, args, initializer):
@@ -183,6 +46,84 @@ def cross_validation(p, X, Y, args, initializer):
     print(errs)
     print(best_arg)
     return best_classifier
+
+
+def calculate_err(classifier, X_test, Y_test):
+    err_count = 0
+    # sum = 0
+    m = Y_test.shape[0]
+    for i in range(m):
+        x = X_test[i, :]
+        y = classifier.classify(x)
+        # sum += y
+        if y != Y_test[i]:
+            err_count += 1
+
+    # print(sum)
+    return err_count / m
+
+
+def pick_random(X, Y, n):
+    perm = np.random.permutation(X.shape[0])[0:n]
+    return X[perm], Y[perm]
+
+
+def main():
+    # mnist.init()
+    x_train, y_train, x_test, y_test = MNISTLoader.load_all()
+    x_train = x_train / 255
+    x_test = x_test / 255
+
+    x_train, y_train = pick_random(x_train, y_train, 2000)
+    x_test, y_test = pick_random(x_test, y_test, 500)
+
+    x_good_train, y_good_train, x_good_test, y_good_test = MNISTLoader.load_part([0, 1])
+    x_good_train = x_good_train / 255
+    x_good_test = x_good_test / 255
+
+    x_good_train, y_good_train = pick_random(x_good_train, y_good_train, 2000)
+    x_good_test, y_good_test = pick_random(x_good_test, y_good_test, 500)
+
+    x_bad_train, y_bad_train, x_bad_test, y_bad_test = MNISTLoader.load_part([3, 5])
+    x_bad_train = x_bad_train / 255
+    x_bad_test = x_bad_test / 255
+
+    y_bad_train = (y_bad_train - 3) / 2  # 0/1
+    y_bad_test = (y_bad_test - 3) / 2  # 0/1
+
+    x_bad_train, y_bad_train = pick_random(x_bad_train, y_bad_train, 2000)
+    x_bad_test, y_bad_test = pick_random(x_bad_test, y_bad_test, 500)
+
+    ## Naive Bayes
+    ## need to transform x to {0,1}^d
+    print("\nNaive Bayes")
+    ## easy pair- 0 1
+    err = run(NaiveBayes, np.ceil(x_good_train), y_good_train, np.ceil(x_good_test), y_good_test)
+    print("err of 0,1: " + str(err * 100) + "%")
+    ## hard pair - 3 5
+    err = run(NaiveBayes, np.ceil(x_bad_train), y_bad_train, np.ceil(x_bad_test), y_bad_test)
+    print("err of 3,5: " + str(err * 100) + "%")
+
+    ## SVM
+    print("\nSVM")
+    ## need to transform y to {-1,1}
+    ## easy pair- 0 1
+    err = run(SVM, x_good_train, np.sign(y_good_train - 0.5), x_good_test, np.sign(y_good_test - 0.5), arg=1)
+    print("err of 0,1: " + str(err * 100) + "%")
+    ## hard pair - 3 5
+    err = run(SVM, x_bad_train, np.sign(y_bad_train - 0.5), x_bad_test, np.sign(y_bad_test - 0.5), arg=1)
+    print("err of 3,5: " + str(err * 100) + "%")
+
+    ## KNN
+    print("\nKNN")
+    err = run(KNN, x_train, y_train, x_test, y_test, arg=5)
+    print("err of 0-9: " + str(err * 100) + "%")
+
+    ## Kmeans
+    print("\nKmeans")
+    kmeans = Kmeans(10, x_train, y_train)
+    kmeans.cluster()
+    kmeans.showClusters()
 
 
 def show_images(X, Y):
