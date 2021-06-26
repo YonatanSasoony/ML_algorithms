@@ -2,19 +2,18 @@ import numpy as np
 from cvxopt import solvers
 from cvxopt import matrix as cvxopt_matrix
 
+
 class SVM(object):
     def __init__(self, regulator, X_train, Y_train):
         self.w = self.calc_separator(regulator, X_train, Y_train)
 
     def classify(self, x):
-        y = np.sign(np.dot(self.w, x))[0]  # -1/1
-        guess = (y + 1) / 2  # 0/1
-        return guess
+        y = np.sign(np.dot(self.w, x))[0]
+        return y
 
     @staticmethod
-    def calc_separator(regulator, X, Y):
+    def calc_separator(regulator, X, Y):  # y: {-1,1}
         m, d = X.shape
-
         u1 = np.zeros((d, 1))
         u2 = np.ones((m, 1)) * (1.0 / m)
         u = np.concatenate((u1, u2), axis=0)
@@ -25,8 +24,7 @@ class SVM(object):
         H3 = np.zeros((m, d))
         H4 = np.zeros((m, m))
         H34 = np.concatenate((H3, H4), axis=1)
-        H = np.concatenate((H12, H34), axis=0)
-        H = H * 2 * regulator
+        H = np.concatenate((H12, H34), axis=0) * 2 * regulator
 
         A1 = np.zeros((m, d))
         A2 = np.eye(m)
@@ -45,9 +43,6 @@ class SVM(object):
         u = cvxopt_matrix(u)
         A = cvxopt_matrix(A)
         v = cvxopt_matrix(v)
-
-        A1 = cvxopt_matrix([0 for i in range(m+d)], (1, m+d))
-        b = cvxopt_matrix(0)
 
         z = solvers.qp(H, u, G=-A, h=-v)['x']
         return np.asarray(z[0:d].T)
